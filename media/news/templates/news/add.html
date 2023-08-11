@@ -1,0 +1,12 @@
+<body>
+    <form action="{% url 'news:add'%}" method="post">
+        {% csrf_token %}
+
+        <h3>Add news:</h3>
+        <p>Title</p>
+        <input type="text" id="title" name="title"><br>
+        <p>Content:</p>
+        <textarea id="content" name="content"></textarea><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>

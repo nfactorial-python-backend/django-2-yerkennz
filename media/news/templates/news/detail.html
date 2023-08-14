@@ -2,4 +2,21 @@
     <h1>{{news.title}}</h1>
     <h2>{{news.content}}</h2>
     <h2>{{news.created_at}}</h2>
+    <p>Add comment:</p>
+    <form  method="post">
+        {% csrf_token %}
+
+        <h3>Add news:</h3>
+        <p>Content:</p>
+        <textarea id="content" name="content"></textarea><br>
+        <button type="submit">Submit</button>
+    </form>
+    <p>Comments:</p>
+    <ol>
+        {% for comment in news.comment_set.all %}
+            <li>
+                {{comment.content}} - {{comment.created_at}}
+            </li>
+        {% endfor %}
+    </ol>
 </body>

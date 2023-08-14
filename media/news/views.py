@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from .models import News 
+from .models import News, Comment
 
 # Create your views here.
 def index(request):
@@ -15,6 +15,11 @@ def detail(request, news_id):
     except News.DoesNotExist:
         raise Http404("Not Found")
     
+    if request.method == 'POST':
+        content = request.POST['content']
+        Comment.objects.create(content=content, news=news)
+        latest_comment = Comment.objects.latest('created_at')
+        return redirect(reverse('news:detail', args=[news_id]))
     context = {"news": news}
     return render(request, "news/detail.html",context)
 

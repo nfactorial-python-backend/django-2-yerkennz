@@ -1,7 +1,9 @@
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from .models import News, Comment
+from django.views import View
+from .forms import NewsForm
 
 # Create your views here.
 def index(request):
@@ -31,3 +33,24 @@ def add(request):
         latest_news = News.objects.latest('created_at')
         return redirect(reverse('news:detail', args=[latest_news.pk]))
     return render(request, 'news/add.html')
+
+class NewsEditView(View):
+    def get(self, request, news_id):
+        try :
+            news = News.objects.get(pk=news_id)
+        except News.DoesNotExist:
+            raise Http404("Not Found")
+        form = NewsForm(instance=news)
+        return render(request, "news/news_edit.html", {"form": form, "news_id": news_id})
+    
+    def post(self, request, news_id):
+        try :
+            news = News.objects.get(pk=news_id)
+        except News.DoesNotExist:
+            raise Http404("Not Found")
+        
+        form = NewsForm(request.POST, instance=news)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("news:detail", args=(news_id,)))

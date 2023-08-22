@@ -3,10 +3,17 @@
         {% for new in news %}
 
             <li>
-                <p>{{new.title}}</p>
+                <a href="{% url 'news:detail' new.id %}">{{new.title}}</a>
             </li>
+            {% if user == new.author or perms.polls.delete_news %}
+                <form action="{% url 'news:delete_news' new.id %}" method="post">
+                    {% csrf_token %}
 
+                    <button type="submit" class="btn btn-danger" >Удалить</button>
+                </form>
+            {% endif %}
         {% endfor %}
+        
     </ol>
 
 </body>

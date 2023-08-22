@@ -1,22 +1,49 @@
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+</head>
+
 <body>
     <h1>{{news.title}}</h1>
     <h2>{{news.content}}</h2>
     <h2>{{news.created_at}}</h2>
-    <p>Add comment:</p>
-    <form  method="post">
-        {% csrf_token %}
 
-        <h3>Add news:</h3>
-        <p>Content:</p>
-        <textarea id="content" name="content"></textarea><br>
-        <button type="submit">Submit</button>
-    </form>
-    <p>Comments:</p>
-    <ol>
-        {% for comment in news.comment_set.all %}
-            <li>
-                {{comment.content}} - {{comment.created_at}}
-            </li>
-        {% endfor %}
-    </ol>
+    {% if user.is_authenticated %}
+        <a class="btn btn-outline-danger" href="{% url 'logout' %}">Выйти</a>
+        <form  method="post">
+            {% csrf_token %}
+
+            <h3>Add comment:</h3>
+            <p>Content:</p>
+            <textarea id="content" name="content"></textarea><br>
+            <button type="submit">Submit</button>
+        </form>
+        <p>Comments:</p>
+        <ol>
+            {% for comment in news.comment_set.all %}
+                <li>
+                    {{comment.content}} - {{comment.created_at}}
+                </li>
+                {% if user == comment.author or perms.news.delete_comment %}
+                        <form action="{% url 'news:delete_comment' news.id comment.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" >Удалить</button>
+                        </form>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p>Comments:</p>
+        <ol>
+            {% for comment in news.comment_set.all %}
+                <li>
+                    {{comment.content}} - {{comment.created_at}}
+                </li>
+            {% endfor %}
+        </ol>
+    <li class="nav-item">
+        <a class="btn btn-outline-danger" href="{% url 'logout' %}">Войти</a>
+    </li>
+        <h5>Add comment:</h5>
+        <p>Доступно для авторизованных</p>
+    {% endif %}
 </body>

@@ -7,6 +7,10 @@ from .forms import NewsForm, SignUpForm, CommentsForm
 from django.contrib.auth.models import Group
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, permission_required
+from rest_framework import generics, mixins, status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import NewsSerializer
 
 # Create your views here.
 def index(request):
@@ -118,3 +122,27 @@ def delete_comment(request, news_id, comment_id):
         ):
             comment.delete()
     return redirect(reverse("news:index"))
+
+#api
+def api_index(request):
+    print(request.user.username)
+    news = News.objects.all()
+    serializer = NewsSerializer(news, many=True)
+
+    return Response(serializer.data, status=418)
+
+@api_view(["POST"])
+def api_post(request):
+    serializer = NewsSerializer(data=request.data)
+    if serializer.is_valid():
+        news = serializer.save()
+        return Response({"detail": "save success", "news_id": news.id})
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class NewsDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = News.objects.all()
+    serializer_class = NewsSerializer
+
+class NewsList(generics.ListCreateAPIView):
+    queryset = News.objects.all()
+    serializer_class = NewsSerializer
